@@ -1,1 +1,2 @@
 # puzzle
+## a funny game
