@@ -3,7 +3,6 @@ package bingo.puzzle.pages;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,7 +30,7 @@ import bingo.puzzle.utils.ToastUtils;
 /**
  * Created by Administrator on 2016/4/30 0030.
  */
-public class PuzzleActivity extends BaseActivity {
+public class PuzzleActivity extends BaseActivity implements View.OnClickListener {
 
     private GridView mGvPics;
     private TextView mTime, mStep;
@@ -42,7 +42,9 @@ public class PuzzleActivity extends BaseActivity {
     private List<PicItem> mItemBeans = new ArrayList<>();
     private PicItem mBlankPicItem;
     private PicAdapter picAdapter;
-    private ImageView successAnim;
+    private ImageView successAnim, originalPic;
+    private Button createAgain, showOriginalPic, startGame;
+    private boolean isStarted = false;
     /**
      * 最后一张拼图
      */
@@ -84,6 +86,15 @@ public class PuzzleActivity extends BaseActivity {
         }
     }
 
+    TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            Message msg = new Message();
+            msg.what = TIME;
+            updateHandler.sendMessage(msg);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,11 +122,19 @@ public class PuzzleActivity extends BaseActivity {
         mGvPics = $(R.id.gv_pics);
         mTime = $(R.id.tv_time);
         mStep = $(R.id.tv_step);
+        createAgain = $(R.id.btn_create_again);
+        showOriginalPic = $(R.id.btn_origin_pic);
         successAnim = $(R.id.iv_success_anim);
+        originalPic = $(R.id.iv_original_pic);
+        startGame = $(R.id.btn_start);
         updateHandler = new UpdateHandler();
         if (type == 2) {
             mGvPics.setNumColumns(2);
         }
+
+        createAgain.setOnClickListener(PuzzleActivity.this);
+        showOriginalPic.setOnClickListener(PuzzleActivity.this);
+        startGame.setOnClickListener(PuzzleActivity.this);
     }
 
     private void initData() {
@@ -125,17 +144,6 @@ public class PuzzleActivity extends BaseActivity {
         picAdapter = new PicAdapter(mItemBeans);
         mGvPics.setAdapter(picAdapter);
         mGvPics.setOnItemClickListener(new PicOnItemClickListener());
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                Message msg = new Message();
-                msg.what = TIME;
-                updateHandler.sendMessage(msg);
-            }
-        };
-
-        mTimer.schedule(timerTask, 0, 1000);
-
     }
 
     /**
@@ -336,6 +344,10 @@ public class PuzzleActivity extends BaseActivity {
     private class PicOnItemClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(final AdapterView<?> parent, View view, int position, long id) {
+            if (!isStarted) {
+                ToastUtils.toastTop(PuzzleActivity.this, "请先开始游戏");
+                return;
+            }
             if (isMoveable(position)) {
                 swapItems(mItemBeans.get(position), mBlankPicItem);
                 picAdapter.notifyDataSetChanged();
@@ -363,6 +375,64 @@ public class PuzzleActivity extends BaseActivity {
                     }, 2000);
                 }
             }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        switch (v.getId()) {
+            case R.id.btn_create_again:
+                getPuzzle();
+                picAdapter.notifyDataSetChanged();
+                break;
+            case R.id.btn_origin_pic:
+                switchOriginalPic();
+                break;
+            case R.id.btn_start:
+                startOrStopGame();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void switchOriginalPic() {
+        if ("原图".equals(showOriginalPic.getText().toString())) {
+            showOriginalPic.setText("隐藏");
+            originalPic.setImageBitmap(resizeBitmap(720, 720, selectedPic));
+            originalPic.setVisibility(View.VISIBLE);
+        } else {
+            showOriginalPic.setText("原图");
+            originalPic.setImageBitmap(null);
+            originalPic.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private Boolean isWait;
+
+    private void startOrStopGame() {
+        if (!isStarted) {
+            startGame.setText("停止");
+            createAgain.setEnabled(false);
+            if (isWait) {
+                mTimer.notify();
+            }
+            mTimer.schedule(timerTask, 0, 1000);
+            isStarted = true;
+        } else {
+            startGame.setText("开始");
+            createAgain.setEnabled(true);
+            try {
+                mTimer.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            isWait = true;
+            mTime.setText("0s");
+            mStep.setText("0");
+            timeCount = 0;
+            isStarted = false;
         }
     }
 
