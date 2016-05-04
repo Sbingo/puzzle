@@ -409,26 +409,16 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private Boolean isWait;
 
     private void startOrStopGame() {
         if (!isStarted) {
             startGame.setText("停止");
             createAgain.setEnabled(false);
-            if (isWait) {
-                mTimer.notify();
-            }
             mTimer.schedule(timerTask, 0, 1000);
             isStarted = true;
         } else {
             startGame.setText("开始");
             createAgain.setEnabled(true);
-            try {
-                mTimer.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            isWait = true;
             mTime.setText("0s");
             mStep.setText("0");
             timeCount = 0;
