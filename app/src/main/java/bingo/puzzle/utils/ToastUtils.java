@@ -1,14 +1,20 @@
 package bingo.puzzle.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import bingo.puzzle.R;
 
 
 /**
- * ToastUtils
- *
- * @author <a href="http://www.trinea.cn" target="_blank">Trinea</a> 2013-12-9
+ * Toast工具类
  */
 public class ToastUtils {
 
@@ -52,5 +58,49 @@ public class ToastUtils {
         Toast toast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.TOP, 0, 0);
         toast.show();
+    }
+
+    private static CountDownTimer toastCountDown;
+    public static Toast toast;
+    private static View toastLayout;
+    private static TextView toastText;
+    private static Activity savedActivity;
+
+    /**
+     * @param activity
+     * @param content
+     * @return
+     */
+    public static <T extends Activity> Toast displayCustomToast(T activity, String content, int position) {
+        if (savedActivity == null || (savedActivity != null && !savedActivity.equals(activity))) {
+            savedActivity = activity;
+            toastLayout = LayoutInflater.from(activity).inflate(R.layout.custom_toast, (ViewGroup) savedActivity.findViewById(R.id.toast_layout_root));
+            toastText = (TextView) toastLayout.findViewById(R.id.text);
+            toast = new Toast(savedActivity);
+            toast.setGravity(position, 0, 0);
+            toast.setDuration(Toast.LENGTH_LONG);
+        } else {
+            if (toast != null) {
+                toast.cancel();
+            }
+        }
+        toastText.setText(content);
+        toast.setView(toastLayout);
+        if (toastCountDown != null) {
+            toastCountDown.cancel();
+        }
+        toastCountDown = new CountDownTimer(1500, 500 /*Tick duration*/) {
+            public void onTick(long millisUntilFinished) {
+                toast.show();
+            }
+
+            public void onFinish() {
+                toast.cancel();
+            }
+        };
+        // Show the toast and starts the countdown
+        toast.show();
+        toastCountDown.start();
+        return toast;
     }
 }

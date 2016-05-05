@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,7 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
      */
     private Bitmap mLastBitmap;
     /**
-     * N 阶
+     * N 阶，默认3 X 3
      */
     private int type;
     /**
@@ -64,7 +65,7 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
     private static final int TIME = 0;
     private static final int STEP = 1;
 
-    private Timer mTimer = new Timer(true);
+    private Timer mTimer;
     private UpdateHandler updateHandler;
 
     class UpdateHandler extends Handler {
@@ -86,14 +87,14 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
-            Message msg = new Message();
-            msg.what = TIME;
-            updateHandler.sendMessage(msg);
-        }
-    };
+//    TimerTask timerTask = new TimerTask() {
+//        @Override
+//        public void run() {
+//            Message msg = new Message();
+//            msg.what = TIME;
+//            updateHandler.sendMessage(msg);
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -345,7 +346,7 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         @Override
         public void onItemClick(final AdapterView<?> parent, View view, int position, long id) {
             if (!isStarted) {
-                ToastUtils.toastTop(PuzzleActivity.this, "请先开始游戏");
+                ToastUtils.displayCustomToast(PuzzleActivity.this, "请先开始游戏", Gravity.TOP);
                 return;
             }
             if (isMoveable(position)) {
@@ -362,10 +363,13 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
                     //成功次数加1
                     int i = PreferencesUtils.getInt(PuzzleActivity.this, Constant.COMPLETED_TIMES, 0);
                     PreferencesUtils.putInt(PuzzleActivity.this, Constant.COMPLETED_TIMES, ++i);
-                    ToastUtils.toastTop(PuzzleActivity.this, "拼图成功！");
+                    ToastUtils.displayCustomToast(PuzzleActivity.this, "拼图成功！", Gravity.TOP);
+                    startGame.setEnabled(false);
                     setResult(RESULT_OK);
                     //计时停止
-                    mTimer.cancel();
+                    if (mTimer != null) {
+                        mTimer.cancel();
+                    }
 
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -414,6 +418,15 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         if (!isStarted) {
             startGame.setText("停止");
             createAgain.setEnabled(false);
+            mTimer = new Timer(true);
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Message msg = new Message();
+                    msg.what = TIME;
+                    updateHandler.sendMessage(msg);
+                }
+            };
             mTimer.schedule(timerTask, 0, 1000);
             isStarted = true;
         } else {
@@ -422,6 +435,8 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
             mTime.setText("0s");
             mStep.setText("0");
             timeCount = 0;
+            stepCount = 0;
+            mTimer.cancel();
             isStarted = false;
         }
     }
@@ -429,5 +444,8 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (ToastUtils.toast != null) {
+            ToastUtils.toast.cancel();
+        }
     }
 }

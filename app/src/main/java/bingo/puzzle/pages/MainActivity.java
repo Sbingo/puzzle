@@ -102,7 +102,8 @@ public class MainActivity extends BaseActivity {
                 holder = new ViewHolder();
                 convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.gv_pics_item, null);
                 holder.iv = (ImageView) convertView.findViewById(R.id.iv_pic);
-                Picasso.with(MainActivity.this).load(list[position]).into(holder.iv);
+                holder.iv.setImageResource(list[position]);
+//                Picasso.with(MainActivity.this).load(list[position]).into(holder.iv);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
