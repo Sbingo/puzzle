@@ -97,23 +97,26 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.gv_pics_item, null);
-                holder.iv = (ImageView) convertView.findViewById(R.id.iv_pic);
-                holder.iv.setImageResource(list[position]);
+//            ViewHolder holder;
+//            if (convertView == null) {
+//                holder = new ViewHolder();
+            convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.gv_pics_item, null);
+//                holder.iv = (ImageView) convertView.findViewById(R.id.iv_pic);
+//                holder.iv.setImageResource(list[position]);
+            ImageView v = (ImageView) convertView.findViewById(R.id.iv_pic);
+            v.setImageResource(list[position]);
+            convertView.setTag(v);
 //                Picasso.with(MainActivity.this).load(list[position]).into(holder.iv);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+//                convertView.setTag(holder);
+//            } else {
+//                holder = (ViewHolder) convertView.getTag();
+//            }
             return convertView;
         }
 
-        private class ViewHolder {
-            private ImageView iv;
-        }
+//        private class ViewHolder {
+//            private ImageView iv;
+//        }
     }
 
     private class PicOnItemClickListener implements AdapterView.OnItemClickListener {
