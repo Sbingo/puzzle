@@ -71,8 +71,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/gv_pics"
         android:layout_marginTop="30dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp">
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp">
 
         <Button
             android:id="@+id/btn_create_again"
@@ -84,7 +84,7 @@
             android:text="重置" />
 
         <TextView
-            android:layout_width="20dp"
+            android:layout_width="50dp"
             android:layout_height="match_parent" />
 
         <Button
@@ -96,25 +96,7 @@
             android:textColor="#ffffff"
             android:text="开始" />
 
-        <TextView
-            android:layout_width="20dp"
-            android:layout_height="match_parent" />
-        <Button
-            android:id="@+id/btn_origin_pic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_bg"
-            android:layout_weight="1"
-            android:textColor="#ffffff"
-            android:text="原图" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/iv_original_pic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/gv_pics"
-        android:visibility="invisible" />
 
 </RelativeLayout>

@@ -29,7 +29,7 @@ import bingo.puzzle.utils.PreferencesUtils;
 import bingo.puzzle.utils.ToastUtils;
 
 /**
- * Created by Administrator on 2016/4/30 0030.
+ * Created by sjb on 2016/4/30 0030.
  */
 public class PuzzleActivity extends BaseActivity implements View.OnClickListener {
 
@@ -43,7 +43,7 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
     private List<PicItem> mItemBeans = new ArrayList<>();
     private PicItem mBlankPicItem;
     private PicAdapter picAdapter;
-    private ImageView successAnim, originalPic;
+    private ImageView successAnim;
     private Button createAgain, showOriginalPic, startGame;
     private boolean isStarted = false;
     /**
@@ -87,15 +87,6 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-//    TimerTask timerTask = new TimerTask() {
-//        @Override
-//        public void run() {
-//            Message msg = new Message();
-//            msg.what = TIME;
-//            updateHandler.sendMessage(msg);
-//        }
-//    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,9 +115,7 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         mTime = $(R.id.tv_time);
         mStep = $(R.id.tv_step);
         createAgain = $(R.id.btn_create_again);
-        showOriginalPic = $(R.id.btn_origin_pic);
         successAnim = $(R.id.iv_success_anim);
-        originalPic = $(R.id.iv_original_pic);
         startGame = $(R.id.btn_start);
         updateHandler = new UpdateHandler();
         if (type == 2) {
@@ -134,7 +123,6 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
         }
 
         createAgain.setOnClickListener(PuzzleActivity.this);
-        showOriginalPic.setOnClickListener(PuzzleActivity.this);
         startGame.setOnClickListener(PuzzleActivity.this);
     }
 
@@ -390,9 +378,6 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
                 getPuzzle();
                 picAdapter.notifyDataSetChanged();
                 break;
-            case R.id.btn_origin_pic:
-                switchOriginalPic();
-                break;
             case R.id.btn_start:
                 startOrStopGame();
                 break;
@@ -400,19 +385,6 @@ public class PuzzleActivity extends BaseActivity implements View.OnClickListener
                 break;
         }
     }
-
-    private void switchOriginalPic() {
-        if ("原图".equals(showOriginalPic.getText().toString())) {
-            showOriginalPic.setText("隐藏");
-            originalPic.setImageBitmap(resizeBitmap(720, 720, selectedPic));
-            originalPic.setVisibility(View.VISIBLE);
-        } else {
-            showOriginalPic.setText("原图");
-            originalPic.setImageBitmap(null);
-            originalPic.setVisibility(View.INVISIBLE);
-        }
-    }
-
 
     private void startOrStopGame() {
         if (!isStarted) {
